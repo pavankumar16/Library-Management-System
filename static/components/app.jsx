@@ -52,7 +52,7 @@ class App extends React.Component {
           <span>Return</span>
         </a>
         <a className={this.props.page  == 'fines' ? "navbar-item "+highlightOption : "navbar-item"} href="#" onClick={()=>this.handleTabClick('fines')}>
-          <span>Fines</span>
+          <span>Recommend</span>
         </a>
         <a className={this.props.page  == 'borrower' ? "navbar-item "+highlightOption : "navbar-item"} href="#" onClick={()=>this.handleTabClick('borrower')}>
           <span>Register</span>

@@ -26,7 +26,7 @@ class CheckIn extends React.Component {
      this.setState({'searchQuery':this.searchInput.value})
      let searchJson = {'searchQuery': this.searchInput.value};
      $.ajax({
-              url: 'http://localhost:5000/searchBookLoan',
+              url: 'http://localhost:5000/searchHistory',
               type: 'POST',
               data: JSON.stringify(searchJson),
               success: function(response) {
@@ -47,7 +47,7 @@ class CheckIn extends React.Component {
    this.setState({isLoading:true})
    let searchJson = {'searchQuery': searchQuery};
    $.ajax({
-            url: 'http://localhost:5000/searchBookLoan',
+            url: 'http://localhost:5000/searchHistory',
             type: 'POST',
             data: JSON.stringify(searchJson),
             success: function(response) {
@@ -61,15 +61,17 @@ class CheckIn extends React.Component {
  }
 
  handleCheckin(event){
-   if(this.state.loanId){
-     let checkinJson = {'loanId':this.state.loanId}
+  let bool = event.target.name == 'search' ? this.searchInput.value.length > 0 && event.which == 13 : this.searchInput.value.length > 0
+  if(bool){
+    let searchJson = {'searchQuery': this.searchInput.value};
      $.ajax({
-              url: 'http://localhost:5000/checkinBook',
+              url: 'http://localhost:5000/getRecommendation',
               type: 'POST',
-              data: JSON.stringify(checkinJson),
+              data: JSON.stringify(searchJson),
               success: function(response) {
-                  this.setState({message:response.message,success:response.success})
-                  this.refreshLoanSearch(this.state.searchQuery)
+                this.props.setLoanSearchResult(response)
+                //this.setState({message:response.message,success:response.success})
+                //this.refreshLoanSearch(this.state.searchQuery)
               }.bind(this),
               error: function(error) {
                   this.setState({message:response.message,success:response.success})
@@ -100,9 +102,9 @@ class CheckIn extends React.Component {
      <div className ='row-fluid'>
       <div className ='col-md-6'>
     <div className={"input-group "+bookSearchClassName}>
-     <input type="text" className="form-control" placeholder="Enter your Library ID number.." name='search' onKeyPress={this.handleSearch} ref={(input)=>{this.searchInput=input}} / >
+     <input type="text" className="form-control" placeholder="Enter your library ID to get started.." name='search' onKeyPress={this.handleSearch} ref={(input)=>{this.searchInput=input}} / >
        <span className="input-group-btn">
-         <button className="btn btn-primary" type="button" name = 'go' onClick={this.handleSearch}> Go </button>
+         <button className="btn btn-primary" type="button" name = 'go' onClick={this.handleSearch}>Get History</button>
        </span>
     </div>
     </div>
@@ -113,12 +115,10 @@ class CheckIn extends React.Component {
       this.props.searchLoanResult ? this.props.searchLoanResult.get('searchResult').size > 0 ? <div className='isbnTable'><table className="table defaultTable">
         <thead>
           <tr>
-            <th scope="col">Loan_id</th>
             <th scope="col">ISBN</th>
-            <th scope="col">Card_id</th>
-            <th scope="col">Borrower</th>
-            <th scope="col">Date_Out</th>
-            <th scope="col">Due_Date</th>
+            <th scope="col">Title</th>
+            <th scope="col">Genre</th>
+            <th scope="col">Rating</th>
           </tr>
         </thead>
         <tbody>
@@ -126,16 +126,10 @@ class CheckIn extends React.Component {
         this.props.searchLoanResult.get('searchResult').map((data,id) => {
                 let loanId = data.get(0)
                 return <tr key={loanId}>
-                  <td scope="row">
-                    <div className="checkbox">
-                     <label><input type="checkbox" value={loanId} name="isbncheckbox" onChange={this.handleLoanSelectionChange} checked={this.state.loanId.includes(data.get(0).toString())} />{loanId}</label>
-                    </div>
-                  </td>
+                  <td>{data.get(0)}</td>
                   <td>{data.get(1)}</td>
                   <td>{data.get(2)}</td>
                   <td>{data.get(3)}</td>
-                  <td>{data.get(4)}</td>
-                  <td>{data.get(5)}</td>
                 </tr>
         })
       }
@@ -150,7 +144,7 @@ class CheckIn extends React.Component {
       : null
     }
 
-  <div className = 'checkOutButton'><button type = 'button' className = 'btn btn-primary' onClick={this.handleCheckin} disabled={this.state.loanId.length > 0 ? false : true}>Check In</button></div>
+  <div className = 'checkOutButton'><button type = 'button' className = 'btn btn-primary' onClick={this.handleCheckin}>Get Recommendation</button></div>
 
     </div>
        :<div className='noResults'><span>No results found</span></div> : this.state.isLoading == true ? <div className = 'loadingSearch'><span>Loading...</span></div> : null
