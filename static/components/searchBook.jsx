@@ -137,8 +137,8 @@ class SearchBook extends React.Component {
       }
     </tbody>
     </table>
-    <label htmlFor="borrowerId">PES Library ID#</label>
-    <input type="text" title='select a book to check out and enter card id' className="form-control col-md-3" id="borrowerId" placeholder="Enter Library ID#" value= {this.state.borrowerId} onChange={this.handleBorrowerId} disabled={!this.state.isbn ? true : false} required  />
+    <label htmlFor="borrowerId">Library ID</label>
+    <input type="text" title='select a book to check out and enter card id' className="form-control col-md-3" id="borrowerId" placeholder="Enter Library ID" value= {this.state.borrowerId} onChange={this.handleBorrowerId} disabled={!this.state.isbn ? true : false} required  />
 
       {
           this.state.success == true ?  <div className="alertSuccess">  <strong>Success!</strong> {this.state.message}  </div>

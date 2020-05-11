@@ -6,13 +6,13 @@
 .pageHeader{
   font-size: 32px;
   color: white;
-  margin-left: 35%
+  margin-left: 40%
 }
 
 .titleBlock{
-  background-color:#362B77;
-  padding-top: 50px;
-  padding-bottom: 50px;
+  background-color:#659EBC;
+  padding-top: 75px;
+  padding-bottom: 75px;
 }
 
 .navigation {
@@ -55,7 +55,7 @@ td {
 }
 
 th {
-  background-color: #4267b2;
+  background-color: #8E8741;
   color: white;
 }
 
@@ -102,8 +102,8 @@ tr:hover {
 }
 
 button.btn.btn-primary{
-  background-color: #E68017;
-  border-color: #E68017;
+  background-color: #DAAD86;
+  border-color: #DAAD86;
 }
 
 .cardIdText{

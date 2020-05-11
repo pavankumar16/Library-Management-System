@@ -102,7 +102,7 @@ class CheckIn extends React.Component {
      <div className ='row-fluid'>
       <div className ='col-md-6'>
     <div className={"input-group "+bookSearchClassName}>
-     <input type="text" className="form-control" placeholder="Enter your library ID to get started.." name='search' onKeyPress={this.handleSearch} ref={(input)=>{this.searchInput=input}} / >
+     <input type="text" className="form-control" placeholder="Enter Library ID or name to get started.." name='search' onKeyPress={this.handleSearch} ref={(input)=>{this.searchInput=input}} / >
        <span className="input-group-btn">
          <button className="btn btn-primary" type="button" name = 'go' onClick={this.handleSearch}>Get History</button>
        </span>
@@ -144,7 +144,7 @@ class CheckIn extends React.Component {
       : null
     }
 
-  <div className = 'checkOutButton'><button type = 'button' className = 'btn btn-primary' onClick={this.handleCheckin}>Get Recommendation</button></div>
+  <div className = 'checkOutButton'><button type = 'button' className = 'btn btn-primary' onClick={this.handleCheckin}>Get New Recommendation</button></div>
 
     </div>
        :<div className='noResults'><span>No results found</span></div> : this.state.isLoading == true ? <div className = 'loadingSearch'><span>Loading...</span></div> : null

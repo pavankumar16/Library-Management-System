@@ -108,9 +108,9 @@ class Fine extends React.Component {
          this.props.finesData ? this.props.finesData.get('aggregateData').size>0 ? <div className='isbnTable' ref={(input)=>{this.loanTable = input}}><table className="table defaultTable">
            <thead>
              <tr>
-               <th scope="col">Card_id</th>
+               <th scope="col">ID</th>
                <th scope="col">Name</th>
-               <th scope="col">Total Fine</th>
+               <th scope="col">Fine Amount (in Rupees)</th>
              </tr>
            </thead>
            <tbody>
@@ -137,10 +137,10 @@ class Fine extends React.Component {
            this.state.settleFineForCardId == true ? <div> <table className="table defaultTable">
              <thead>
                <tr>
-                 <th scope="col">Loan_id</th>
-                 <th scope="col">Name</th>
-                 <th scope="col">Fine</th>
-                 <th scope="col">Book Returned</th>
+                 <th scope="col">Borrow #</th>
+                 <th scope="col">ISBN</th>
+                 <th scope="col">Fine Amount (in Rupees)</th>
+                 <th scope="col">Book Returned?</th>
                </tr>
              </thead>
              <tbody>

@@ -70,9 +70,8 @@ class BorrowerManagement extends React.Component {
   <div className = 'row-fluid'>
     <div className = 'col-md-6'>
   <div className="form-group">
-    <label htmlFor="ssn">SSN</label>
-    <input type="text" className="form-control" id="ssn" placeholder="Enter SSN" value= {this.state.ssn} onChange={this.handleSsnChange} pattern="^\d{9,9}$" title='SSN should have 9 digits only' required  />
-    <small id="ssnHelp" className="form-text text-muted">We'll never share your ssn with anyone else.</small>
+    <label htmlFor="ssn">ID Proof No</label>
+    <input type="text" className="form-control" id="ssn" placeholder="e.g. Aadhar, DL No." value= {this.state.ssn} onChange={this.handleSsnChange} required  />
   </div>
 </div>
 </div>
@@ -89,8 +88,8 @@ class BorrowerManagement extends React.Component {
   <div className = 'row-fluid'>
     <div className = 'col-md-6'>
   <div className="form-group">
-    <label htmlFor="phone">Phone</label>
-    <input type="text" className="form-control" id="phone" placeholder="Enter phone number" value= {this.state.phone} onChange={this.handlePhoneChange} pattern="[0-9]{10}" title='phone number should be 10 digits'/>
+    <label htmlFor="phone">Mobile</label>
+    <input type="text" className="form-control" id="phone" placeholder="Enter mobile number" value= {this.state.phone} onChange={this.handlePhoneChange} pattern="[0-9]{10}" title='Mobile Number should be 10 digits'/>
   </div>
 </div>
 </div>
@@ -103,7 +102,7 @@ class BorrowerManagement extends React.Component {
   }
   <div className = 'row-fluid'>
     <div className = 'col-md-6'>
-  <div className='checkOutButton'><button type="submit" className="btn btn-primary">Add</button></div>
+  <div className='checkOutButton'><button type="submit" className="btn btn-primary">Register User</button></div>
   </div>
 </div>
 

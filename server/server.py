@@ -16,10 +16,21 @@ cursor = cnx.cursor(buffered=True)
 
 
 
-@app.route('/', defaults={'path': ''})
+@app.route('/', defaults={'path': ''},methods=['POST','GET'])
 @app.route('/<path:path>')
 def index(path):
+    if request.method == 'POST':
+        if not request.form['user'] or not request.form['password']:
+            return render_template('home.html')
+        if request.form['user'] != 'admin':
+            return render_template('home.html')
+        elif request.form['password'] != 'admin':
+            return render_template('home.html')
     return render_template("index.html")
+
+@app.route('/home',methods=['POST','GET'])
+def display():
+	return render_template("home.html")
 
 @app.route("/addBorrower",methods=['GET', 'POST'])
 def addBorrower():
@@ -37,7 +48,7 @@ def addBorrower():
     response = None
     try:
         cursor.execute(query,(card_id,data["ssn"],data["name"],data["address"],data["phone"]))
-        response = {'message':'Borrower Added','success':True}
+        response = {'message':"New Borrower Created with ID:"+card_id,'success':True}
         cnx.commit()
     except mysql.connector.Error as err:
         if(err.errno in errorCodes.errorCodeMessage):
@@ -104,13 +115,13 @@ def checkoutBook():
                 isCountExceeded = row[0]
                 app.logger.info("%s is the count",isCountExceeded)
             if(isCheckedOut):
-                response = {'message':'Book already checked out','success':False}
+                response = {'message':'Book already issued','success':False}
             elif(isCountExceeded):
-                response = {'message':'Maximum limit of 3 reached. You cannot checkout','success':False}
+                response = {'message':'Maximum limit of 3 reached. You cannot issue.','success':False}
             else:
                 query1 = 'Insert into BOOK_LOANS values(0,%s,%s,%s,%s,null)'
                 query2 = 'update BOOK set isCheckedOut = True where isbn = %s'
-                dateOut = datetime.date.today()
+                dateOut = datetime.date.today() - datetime.timedelta(days=25)
                 dueDate = dateOut + datetime.timedelta(days=14)
                 app.logger.info("before q1")
                 cursor.execute(query1,(isbn,cardId,dateOut,dueDate))
@@ -118,9 +129,9 @@ def checkoutBook():
                 cursor.execute(query2,(isbn,))
                 app.logger.info("execited q2")
                 cnx.commit()
-                response = {'message':'Book Checked Out','success':True}
+                response = {'message':'Book Issued. ','success':True}
         else:
-            response = {'message':'Invalid Borrower Id','success':False}
+            response = {'message':'Invalid Library Id','success':False}
     except mysql.connector.Error as err:
         if(err.errno in errorCodes.errorCodeMessage):
             response = {'message':errorCodes.errorCodeMessage[err.errno],'success':False}
@@ -191,22 +202,6 @@ def getRecommendation():
                 d[type_fixed_row[2]]=0
             d[type_fixed_row[2]]+=float(type_fixed_row[3])
 
-            '''
-            isbn=type_fixed_row[1]
-            inquery = 'select bi.avgrating,bi.tag from bookinfo bi where bi.isbn = '+isbn
-            #get the avg ratings and the score
-            cursor.execute(inquery)
-            copy2 = cursor
-            #app.logger.info("len of copy2 %d",len(copy2))
-
-            for row3 in copy2:
-                info = tuple([el.decode('utf-8') if type(el) is bytearray else el for el in row3])
-                if(info[1] not in d):
-                    d[info[1]]=0
-                d[info[1]]+=info[0]
-            #searchResult.append(type_fixed_row)
-            '''
-
         mvalue = 0
         app.logger.info("Dictionary value: %s",d)
         mkey = ""
@@ -256,18 +251,18 @@ def checkinBook():
 @app.route("/calculateFines",methods=['GET', 'POST'])
 def calculateFines():
     response = None
-    query = 'select loan_id,due_date,date_in from BOOK_LOANS where date_in > due_date or curdate()> due_date'
+    query = 'select loan_id,due_date,date_in from BOOK_LOANS where date_in > due_date or curdate() > due_date'
     cursor.execute(query)
-    today = datetime.date.today()
+    today = datetime.datetime.today()
     rows = cursor.fetchall()
     resultSet = []
     for row in rows:
         if(row[2] == None):
             diff = today - row[1]
-            fine = round(diff.days * 0.25,2)
+            fine = round(diff.days * 2,2)
         else:
             diff = row[2] - row[1]
-            fine = round(diff.days * 0.25,2)
+            fine = round(diff.days * 2,2)
         try:
             query = 'Insert into fines values(%s,%s,%s)'
             cursor.execute(query,(row[0],fine,False))
@@ -296,8 +291,8 @@ def fetchFines():
         resultSet = []
         childMap = {}
         for row in rows:
-            query = 'select bl.loan_id,b.bname,f.fine_amt,bl.date_in from fines f join book_loans bl on f.Loan_id = bl.Loan_id join borrower b on bl.card_id = b.Card_id where f.paid=false and b.card_id=%s'
-            cardId = row[0].decode('utf-8')
+            query = 'select bl.loan_id,bl.isbn,f.fine_amt,bl.date_in from fines f join book_loans bl on f.Loan_id = bl.Loan_id join borrower b on bl.card_id = b.Card_id where f.paid=false and b.card_id=%s'
+            cardId = row[0]
             cursor.execute(query,(cardId,))
             childSet = []
             for row1 in cursor:
