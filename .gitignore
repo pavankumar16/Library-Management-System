@@ -1,3 +1,4 @@
 env
 static/node_modules
 server/__pycache__
+/static/dist
