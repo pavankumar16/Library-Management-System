@@ -1,0 +1,230 @@
+{
+	"info": {
+		"_postman_id": "5d00694d-9184-4008-9e45-1d85c6d695a1",
+		"name": "WT Tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Book Search",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "0367d1be-f380-4316-bfac-7435895275e8",
+						"exec": [
+							"var books = pm.environment.get(\"books\");",
+							"if(!books)",
+							"{",
+							"    var all_books = [\"To Kill A Mockingbird\",\"Harry Potter\",\"Agatha Christie\",\"The Mummy\",\"Inside Out\",\"Black Hole\"];",
+							"    books = all_books;",
+							"}",
+							"var currentBook = books.shift();",
+							"pm.environment.set(\"book\", currentBook);",
+							"pm.environment.set(\"books\", books);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "05727892-5205-4d36-8fd6-4b99f289e013",
+						"exec": [
+							"var books = pm.environment.get(\"books\");",
+							"pm.test(\"Response time is less than 300ms\", function () {",
+							"        pm.expect(pm.response.responseTime).to.be.below(300);",
+							"    });",
+							"tests[\"Status code is not 500\"] = responseCode.code != 500;",
+							"if(books && books.length <= 0)",
+							"{",
+							"    pm.environment.unset(\"books\");",
+							"    pm.environment.unset(\"book\");",
+							"}",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"searchQuery\":\"{{book}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/searchBook",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"searchBook"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Recommendation",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "4bd9f0b5-1912-4bd8-a54a-5786a117f8e5",
+						"exec": [
+							"var count = pm.environment.get(\"req_count\");",
+							"if(!count)",
+							"{",
+							"    count = 0;",
+							"}",
+							"pm.environment.set(\"req\", count%5);",
+							"pm.environment.set(\"req_count\", count+1);",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "4c45af54-639d-4e0f-b3f9-26f7e529e2ef",
+						"exec": [
+							"pm.test(\"Response time is less than 300ms\", function () {",
+							"        pm.expect(pm.response.responseTime).to.be.below(300);",
+							"    });",
+							"tests[\"Status code is not 500\"] = responseCode.code != 500;",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"searchQuery\":\"ID00100{{req}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/getRecommendation",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"getRecommendation"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add User",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "ee6690a0-b9ef-4e91-a794-c1d6cceceaed",
+						"exec": [
+							"var count = pm.environment.get(\"req_count\");",
+							"if(!count)",
+							"{",
+							"    count = 0;",
+							"}",
+							"if(count%10==0)",
+							"{",
+							"    pm.environment.set(\"req\", count/10);",
+							"}",
+							"else",
+							"{",
+							"    pm.environment.set(\"req\", 0);",
+							"}",
+							"pm.environment.set(\"req_count\", count+1);",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "6034eb4b-8930-40fd-b640-4c6b17bc268c",
+						"exec": [
+							"pm.test(\"Response time is less than 300ms\", function () {",
+							"        pm.expect(pm.response.responseTime).to.be.below(300);",
+							"    });",
+							"tests[\"Status code is not 500\"] = responseCode.code != 500;"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"ssn\":\"B12648{{req}}\",\n\t\"name\":\"Name{{req}}\",\n\t\"address\":\"City{{req}}\",\n\t\"phone\":\"0000{{req}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/addBorrower",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"addBorrower"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "2efb95be-9143-4c9e-906a-e0bbb429c8e5",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "36fa0b7a-58e7-4b15-b063-0cfeac774388",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"protocolProfileBehavior": {}
+}

@@ -6,15 +6,15 @@ import mysql.connector
 import errorCodes
 import json
 import datetime
+from multiprocessing import Pool
+from mysql.connector.pooling import MySQLConnectionPool
+import os
 
+pool = None
 
 app = Flask(__name__, static_folder="../static/dist", template_folder="../static")
 
 #enter your username and password
-cnx = mysql.connector.connect(user='root', password='password',database='lms',charset='utf8')
-cursor = cnx.cursor(buffered=True)
-
-
 
 @app.route('/', defaults={'path': ''},methods=['POST','GET'])
 @app.route('/<path:path>')
@@ -34,6 +34,8 @@ def display():
 
 @app.route("/addBorrower",methods=['GET', 'POST'])
 def addBorrower():
+    cnx = mysql.connector.connect(user='root', password='password',database='lms',charset='utf8')
+    cursor = cnx.cursor(buffered=True)
     data = request.get_json(force=True)
     query = "select count(card_id) + 1 from borrower;"
     prefix = 'ID'
@@ -46,6 +48,7 @@ def addBorrower():
     card_id = prefix+card_id_temp+temp
     query = "INSERT into BORROWER(card_id,ssn,bname,address,phone) values(%s,%s,%s,%s,%s)"
     response = None
+    
     try:
         cursor.execute(query,(card_id,data["ssn"],data["name"],data["address"],data["phone"]))
         response = {'message':"New Borrower Created with ID:"+card_id,'success':True}
@@ -56,9 +59,31 @@ def addBorrower():
         else:
             response = {'message':'Borrower Creation failed','success':False}
     return jsonify(response)
+    '''
+    try:
+        cursor.execute(query,(card_id,data["ssn"],data["name"],data["address"],data["phone"]))
+        response = {'message':"New Borrower Created with ID:"+card_id,'success':True}
+        response = jsonify(response)
+        response.status_code = 200
+        cnx.commit()
+    except mysql.connector.Error as err:
+        if(err.errno in errorCodes.errorCodeMessage):
+            response = {'message':errorCodes.errorCodeMessage[err.errno],'success':False}
+            response = jsonify(response)
+            response.status_code = 400
+        else:
+            response = {'message':'Borrower Creation failed','success':False}
+            response = jsonify(response)
+            response.status_code = 400
+    '''
+    cnx.close()
+    return response
+    
 
 @app.route("/searchBook",methods=['GET', 'POST'])
 def searchBook():
+    cnx = mysql.connector.connect(user='root', password='password',database='lms',charset='utf8')
+    cursor = cnx.cursor(buffered=True)
     data = request.get_json(force=True)
     searchQuery = data["searchQuery"]
     searchResult = []
@@ -88,10 +113,13 @@ def searchBook():
             response = {'searchResult':None,'message':errorCodes.errorCodeMessage[err.errno],'success':False}
         else:
             response = {'searchResult':None,'message':'search failed','success':False}
+    cnx.close()
     return jsonify(response)
 
 @app.route("/checkoutBook",methods=['GET', 'POST'])
 def checkoutBook():
+    cnx = mysql.connector.connect(user='root', password='password',database='lms',charset='utf8')
+    cursor = cnx.cursor(buffered=True)
     data = request.get_json(force=True)
     cardId = data["borrowerId"]
     isbn = data["isbn"]
@@ -137,10 +165,13 @@ def checkoutBook():
             response = {'message':errorCodes.errorCodeMessage[err.errno],'success':False}
         else:
             response = {'message':'Borrower Creation failed','success':False}
+    cnx.close()
     return jsonify(response)
 
 @app.route("/searchBookLoan",methods=['GET', 'POST'])
 def searchBookLoan():
+    cnx = mysql.connector.connect(user='root', password='password',database='lms',charset='utf8')
+    cursor = cnx.cursor(buffered=True)
     data = request.get_json(force=True)
     searchQuery = data["searchQuery"]
     searchResult = []
@@ -156,11 +187,14 @@ def searchBookLoan():
             response = {'searchResult':None,'message':errorCodes.errorCodeMessage[err.errno],'success':False}
         else:
             response = {'searchResult':None,'message':'searchFailed','success':False}
+    cnx.close()
     return jsonify(response)
 
 
 @app.route("/searchHistory",methods=['GET', 'POST'])
 def searchHistory():
+    cnx = mysql.connector.connect(user='root', password='password',database='lms',charset='utf8')
+    cursor = cnx.cursor(buffered=True)
     data = request.get_json(force=True)
     searchQuery = data["searchQuery"]
     searchResult = []
@@ -177,11 +211,14 @@ def searchHistory():
             response = {'searchResult':None,'message':errorCodes.errorCodeMessage[err.errno],'success':False}
         else:
             response = {'searchResult':None,'message':str(err),'success':False}
+    cnx.close()
     return jsonify(response)
 
 
 @app.route("/getRecommendation",methods=['GET', 'POST'])
 def getRecommendation():
+    cnx = mysql.connector.connect(user='root', password='password',database='lms',charset='utf8')
+    cursor = cnx.cursor(buffered=True)
     data = request.get_json(force=True)
     searchQuery = data["searchQuery"]
     searchResult = []
@@ -225,11 +262,15 @@ def getRecommendation():
             response = {'searchResult':None,'message':errorCodes.errorCodeMessage[err.errno],'success':False}
         else:
             response = {'searchResult':None,'message':str(err),'success':False}
+    cnx = mysql.connector.connect(user='root', password='password',database='lms',charset='utf8')
+    cursor = cnx.cursor(buffered=True)
     return jsonify(response)
 
 
 @app.route("/checkinBook",methods=['GET', 'POST'])
 def checkinBook():
+    cnx = mysql.connector.connect(user='root', password='password',database='lms',charset='utf8')
+    cursor = cnx.cursor(buffered=True)
     data = request.get_json(force=True)
     loanId = data["loanId"]
     response = None
@@ -246,10 +287,13 @@ def checkinBook():
             response = {'message':errorCodes.errorCodeMessage[err.errno],'success':False}
         else:
             response = {'message':'Book Check In fail','success':False}
+    cnx.close()
     return jsonify(response)
 
 @app.route("/calculateFines",methods=['GET', 'POST'])
 def calculateFines():
+    cnx = mysql.connector.connect(user='root', password='password',database='lms',charset='utf8')
+    cursor = cnx.cursor(buffered=True)
     response = None
     query = 'select loan_id,due_date,date_in from BOOK_LOANS where date_in > due_date or curdate() > due_date'
     cursor.execute(query)
@@ -279,10 +323,13 @@ def calculateFines():
                     response = {'message':errorCodes.errorCodeMessage[err.errno],'success':False}
             else:
                 response = {'message':'Fine calculation failed','success':False}
+    cnx.close()
     return jsonify(response)
 
 @app.route("/fetchFines",methods=['GET','POST'])
 def fetchFines():
+    cnx = mysql.connector.connect(user='root', password='password',database='lms',charset='utf8')
+    cursor = cnx.cursor(buffered=True)
     resultSet = []
     try:
         query = 'select b.card_id,b.bname,SUM(f.fine_amt) from fines f join book_loans bl on f.Loan_id = bl.Loan_id join borrower b on bl.card_id = b.Card_id where f.paid=false group by bl.Card_id'
@@ -307,10 +354,13 @@ def fetchFines():
             response = {'message':errorCodes.errorCodeMessage[err.errno],'success':False}
         else:
             response = {'message':'Fines update failed','success':False}
+    cnx.close()
     return jsonify(response)
 
 @app.route("/settleFines",methods=['GET', 'POST'])
 def settleFines():
+    cnx = mysql.connector.connect(user='root', password='password',database='lms',charset='utf8')
+    cursor = cnx.cursor(buffered=True)
     data = request.get_json(force=True)
     loanId = data["loanId"]
     response = None
@@ -325,8 +375,9 @@ def settleFines():
             response = {'message':errorCodes.errorCodeMessage[err.errno],'success':False}
         else:
             response = {'message':'Fine settlement failed','success':False}
+    cnx.close()
     return jsonify(response)
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(threaded=True)

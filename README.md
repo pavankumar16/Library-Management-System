@@ -25,3 +25,8 @@ In another terminal, go into static directory and run,<br>
  ```npm run watch```<br>
 
 Should run at ```http://localhost:5000/``` by default.
+
+### Load Testing
+Make ```script.js``` ```postman-to-k6 final_test.json -e env.json -o script.js```<br>
+Test Run,<br>
+Run test for 15s, with 200 virtual ```k6 run --duration 15s --vus 200 script.js```
